@@ -7,7 +7,7 @@ abstract class Produto {
 
     public Produto(String nome, double preco) {
         this.nome = nome;
-        this.id = LojaMangas.gerarProximoId();
+        this.id = 0;
         this.preco = preco;
     }
 
