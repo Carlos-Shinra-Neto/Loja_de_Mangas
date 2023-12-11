@@ -64,15 +64,19 @@ Introdução de uma exceção personalizada, `MangaNaoEncontradoException`, para
     - Escolha a opção `3` no menu.
     - Insira o ID do manga que você deseja remover.
 
-3. **Pesquisar um Manga:**
-    - Escolha a opção `3` no menu.
+4. **Pesquisar um Manga:**
+    - Escolha a opção `4` no menu.
     - Insira o ID do manga desejado.
 
-4. **Comprar um Manga:**
-    - Selecione a opção `4` no menu.
+5. **Comprar um Manga:**
+    - Selecione a opção `5` no menu.
     - Insira o ID do manga que você deseja comprar.
-
-6. **Encerrar o Programa:**
+  
+6. **Pesquisar um Produto:**
+    - Selecione a opção `6` no menu.
+    - Insira o ID do produto que você deseja comprar.
+   
+7. **Encerrar o Programa:**
     - Selecione a opção `0` no menu.
 
 ## Melhorias e Expansões Futuras
