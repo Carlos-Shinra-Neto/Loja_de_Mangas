@@ -1,5 +1,6 @@
 package entities;
 
+
 abstract class Produto {
     private String nome;
     private int id;
@@ -7,8 +8,8 @@ abstract class Produto {
 
     public Produto(String nome, double preco) {
         this.nome = nome;
-        this.id = 0;
         this.preco = preco;
+        this.id = Loja.gerarProximoId();
     }
 
 
@@ -18,6 +19,10 @@ abstract class Produto {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public double getPreco() {
