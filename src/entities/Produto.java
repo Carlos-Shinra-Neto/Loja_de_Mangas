@@ -6,16 +6,11 @@ abstract class Produto {
     private int id;
     private  double preco;
 
-    private int tipo;
-
-
-
     public Produto(String nome, double preco) {
         this.nome = nome;
         this.preco = preco;
         this.id = Loja.gerarProximoId();
     }
-
 
     public String getNome() {
         return nome;

@@ -7,6 +7,7 @@ public class Manga extends Produto {
     public Manga(String nome, double preco, String autor) {
         super(nome, preco);
         this.autor = autor;
+
     }
 
     public String getAutor() {
