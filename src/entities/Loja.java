@@ -43,6 +43,7 @@ public class Loja {
     public Produto buscarProdutoPorId(int id) {
         for (Produto produto : estoque) {
             if (produto.getId() == id) {
+                produto.exibirInfo();
                 return produto;
             }
         }

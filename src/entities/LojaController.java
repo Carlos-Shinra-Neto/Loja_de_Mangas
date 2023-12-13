@@ -28,6 +28,7 @@ public class LojaController {
         System.out.println("2 - Adicionar um produto");
         System.out.println("3 - Remover um produto");
         System.out.println("4 - Atualizar um produto");
+        System.out.println("5 - Pesquisar um produto");
     }
 
     public void processarOpcao(int escolha) {
@@ -104,7 +105,12 @@ public class LojaController {
                         System.out.println("Edição cancelada pelo usuário.");
                     }
                 }
-
+                break;
+            case 5:
+                System.out.print("Digite o ID que você quer procurar");
+                id = scanner.nextInt();
+                scanner.nextLine();
+                loja.buscarProdutoPorId(id);
                 break;
             case 0:
                 System.out.println("Encerrando o programa. Obrigado!");
