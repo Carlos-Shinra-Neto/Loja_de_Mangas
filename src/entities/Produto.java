@@ -2,9 +2,13 @@ package entities;
 
 
 abstract class Produto {
-    private String nome;
+    private  String nome;
     private int id;
-    private double preco;
+    private  double preco;
+
+    private int tipo;
+
+
 
     public Produto(String nome, double preco) {
         this.nome = nome;
@@ -23,6 +27,14 @@ abstract class Produto {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String setNome(String nome) {
+       return this.nome = nome;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
     }
 
     public double getPreco() {
