@@ -340,8 +340,7 @@ public class Loja {
         throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
     }
 }
-
-- ````
+````
 
 - **Produto:** Classe abstrata que representa um produto +genérico. Possui atributos comuns a todos os produtos, como nome, ID e preço.
 ````Java
