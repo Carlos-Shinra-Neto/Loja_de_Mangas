@@ -1,5 +1,7 @@
 package entities;
 
+import exceptions.ProdutoNaoEncontradoException;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,6 +15,23 @@ public class Loja {
         proximoId = 1;
     }
 
+    public void adicionarProduto(Produto produto) {
+        produto.setId(gerarProximoId());
+        estoque.add(produto);
+    }
+
+    public void exibirEstoque() {
+        if (estoque == null || estoque.isEmpty()) {
+            System.out.println("Não possui um estoque ainda ou o estoque está vazio.");
+        } else {
+            System.out.println("===== Estoque da Loja de Mangas =====");
+            for (Produto produto : estoque) {
+                produto.exibirInfo();
+                System.out.println("------------------------------");
+            }
+        }
+    }
+
     public static int gerarProximoId() {
         for (Produto produto : estoque) {
             if (produto.getId() == proximoId) {
@@ -23,12 +42,7 @@ public class Loja {
         return proximoId;
     }
 
-    public void adicionarProduto(Produto produto) {
-        produto.setId(gerarProximoId());
-        estoque.add(produto);
-    }
-
-    public boolean atualizarProduto(int id) {
+    public boolean atualizarProduto(int id) throws ProdutoNaoEncontradoException {
         for (Produto produto : estoque) {
             if (produto.getId() == id) {
                 System.out.println("Informações atuais do produto:");
@@ -36,19 +50,17 @@ public class Loja {
                 return true;
             }
         }
-        System.out.println("Produto com o ID " + id + " não encontrado.");
-        return false;
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
     }
 
-    public Produto buscarProdutoPorId(int id) {
+    public Produto buscarProdutoPorId(int id) throws ProdutoNaoEncontradoException {
         for (Produto produto : estoque) {
             if (produto.getId() == id) {
                 produto.exibirInfo();
                 return produto;
             }
         }
-        System.out.println("Produto com o ID " + id + " não encontrado.");
-        return null;
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
     }
 
     public Produto solicitarNovasInformacoes(Scanner scanner, Produto produtoAtual) {
@@ -84,21 +96,7 @@ public class Loja {
         return produtoAtual;
     }
 
-
-    public void exibirEstoque() {
-        if (estoque == null || estoque.isEmpty()) {
-            System.out.println("Não possui um estoque ainda ou o estoque está vazio.");
-        } else {
-            System.out.println("===== Estoque da Loja de Mangas =====");
-            for (Produto produto : estoque) {
-                produto.exibirInfo();
-                System.out.println("------------------------------");
-            }
-        }
-    }
-
-
-    public Produto removerProdutoByID(int id) {
+    public Produto removerProdutoByID(int id) throws ProdutoNaoEncontradoException {
         for (int i = 0; i < estoque.size(); i++) {
             Produto produto = estoque.get(i);
             if (id == produto.getId()) {
@@ -106,6 +104,18 @@ public class Loja {
                 return produto;
             }
         }
-        return null;
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
+    }
+
+    public Produto comprarProduto(int id) throws ProdutoNaoEncontradoException{
+        for (int i = 0; i < estoque.size(); i++) {
+            Produto produto = estoque.get(i);
+            if(produto.getId() == id){
+                System.out.println("Produto comprado com Sucesso!");
+                estoque.remove(i);
+                return produto;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
     }
 }

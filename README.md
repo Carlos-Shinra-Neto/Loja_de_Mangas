@@ -12,31 +12,336 @@ O projeto é organizado em classes distintas para facilitar a manutenção e ext
 
 ```java
 import entities.LojaController;
+import exceptions.ProdutoNaoEncontradoException;
+
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        LojaController lojaController = new LojaController(scanner);
-        lojaController.adicionarMangasAutomaticamente();
+   public static void main(String[] args) throws ProdutoNaoEncontradoException {
+      Scanner scanner = new Scanner(System.in);
+      LojaController lojaController = new LojaController(scanner);
 
-        int escolha;
-        do {
+      lojaController.adicionarMangasAutomaticamente();
+
+      int escolha = -1;
+      do {
+         try {
             lojaController.exibirMenu();
             System.out.print("Escolha uma opção: ");
             escolha = scanner.nextInt();
             scanner.nextLine();
 
             lojaController.processarOpcao(escolha);
-        } while (escolha != 0);
+         } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida. Por favor, insira uma opção válida.");
+            scanner.nextLine();
+         } catch (ProdutoNaoEncontradoException e){
+            System.out.println(e.getMessage());
+         }
+      } while (escolha != 0);
 
-        scanner.close();
-    }
+      scanner.close();
+   }
+
 }
 `````
 - **LojaController:** Responsável por orquestrar as operações da loja, exibir o menu e processar as escolhas do usuário. Mantém uma instância da classe `Loja`.
+`````java
+package entities;
 
+import exceptions.ProdutoNaoEncontradoException;
+
+import java.io.IOException;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class LojaController {
+    private final Scanner scanner;
+    private final Loja loja;
+
+    public LojaController(Scanner scanner) {
+        this.loja = new Loja();
+        this.scanner = scanner;
+    }
+
+    public void adicionarMangasAutomaticamente() {
+        loja.adicionarProduto(new Manga("One Piece", 19.99, "Eiichiro Oda"));
+        loja.adicionarProduto(new Manga("Naruto", 14.99, "Masashi Kishimoto"));
+        loja.adicionarProduto(new Manga("Attack on Titan", 17.99, "Hajime Isayama"));
+        loja.adicionarProduto(new Manga("Cavaleiros do Zodíaco", 24.99, "Masami Kurumada"));
+        loja.adicionarProduto(new Livro("Dracula", 59.99, "Bram Stoker", 1999));
+        loja.adicionarProduto(new Livro("The Scary Crow Who Walks at Midnight", 84.99, "R.L. Stine", 1994));
+        loja.adicionarProduto(new Livro("Frankenstein", 169.99, "Mary Shelley", 1818));
+    }
+
+    public void exibirMenu() {
+        System.out.println("------Bem vindo a Loja------");
+        System.out.println("O que você gostaria de fazer:");
+        System.out.println("1 - Mostrar o Estoque");
+        System.out.println("2 - Adicionar um produto");
+        System.out.println("3 - Remover um produto");
+        System.out.println("4 - Atualizar um produto");
+        System.out.println("5 - Pesquisar um produto");
+        System.out.println("6 - Comprar um produto");
+        System.out.println("0 - Encerrar o programa");
+    }
+
+    public void processarOpcao(int escolha) throws ProdutoNaoEncontradoException {
+        int id = 0;
+        try {
+            switch (escolha) {
+                case 1:
+                    loja.exibirEstoque();
+                    break;
+                case 2:
+                    System.out.println("------Existem alguns tipos de Produto------");
+                    System.out.println("1 - Manga");
+                    System.out.println("2 - Livro");
+                    System.out.print("Qual tipo de Produto: ");
+                    int escolha2 = scanner.nextInt();
+                    try {
+                        switch (escolha2) {
+                            case 1:
+                                scanner.nextLine();
+                                System.out.println("Adicionar Manga:");
+                                Produto novoManga = MangaFactory.criarProduto(scanner);
+                                loja.adicionarProduto(novoManga);
+                                System.out.println("Manga adicionado com sucesso!");
+                                break;
+                            case 2:
+                                scanner.nextLine();
+                                System.out.println("Adicionar Livro:");
+                                Produto novoLivro = LivroFactory.criarProduto(scanner);
+                                loja.adicionarProduto(novoLivro);
+                                System.out.println("Livro adicionado com sucesso!");
+                                break;
+                            default:
+                                System.out.println("Opção inválida. Tente novamente.");
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada inválida. Por favor, insira um número.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 3:
+                    System.out.print("Digite o id do produto que você quer remover: ");
+                    id = scanner.nextInt();
+                    try {
+                        scanner.nextLine();
+                        Produto produtoId = loja.removerProdutoByID(id);
+                        System.out.println("Produto sendo Removido!");
+                        produtoId.exibirInfo();
+                        System.out.println("Produto Removido com Sucesso!");
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada inválida. Por favor, insira um número.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 4:
+                    System.out.print("Digite o id do Produto que você quer atualizar:");
+                    id = scanner.nextInt();
+                    try {
+                        boolean attValida = loja.atualizarProduto(id);
+                        if (attValida) {
+                            System.out.print("Deseja editar este produto? (S/N): ");
+                            char resposta = scanner.nextLine().toUpperCase().charAt(0);
+                            if (resposta == 'S') {
+                                Produto produto = loja.buscarProdutoPorId(id);
+                                if (produto != null) {
+                                    Produto novoProduto = loja.solicitarNovasInformacoes(scanner, produto);
+                                    produto.setNome(novoProduto.getNome());
+                                    produto.setPreco(novoProduto.getPreco());
+                                    if (produto instanceof Manga && novoProduto instanceof Manga) {
+                                        ((Manga) produto).setAutor(((Manga) novoProduto).getAutor());
+                                    }
+                                    if (produto instanceof Livro && novoProduto instanceof Livro) {
+                                        ((Livro) produto).setAutor(((Livro) novoProduto).getAutor());
+                                        ((Livro) produto).setAno(((Livro) novoProduto).getAno());
+                                    }
+                                    System.out.println("Produto atualizado com sucesso!");
+                                } else {
+                                    System.out.println("Produto com o ID " + id + " não encontrado.");
+                                }
+                            } else {
+                                System.out.println("Edição cancelada pelo usuário.");
+                            }
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada inválida. Por favor, insira um número.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 5:
+                    System.out.print("Digite o ID que você quer procurar");
+                    id = scanner.nextInt();
+                    try {
+                        loja.buscarProdutoPorId(id);
+                        scanner.nextLine();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada inválida. Por favor, insira um número.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 6:
+                    System.out.println("Qual o produto que você quer comprar?");
+                    System.out.print("Digite o ID do produto: ");
+                    id = scanner.nextInt();
+                    try {
+                        if (loja.buscarProdutoPorId(id) != null) {
+                            scanner.nextLine();
+                            System.out.print("Deseja comprar este produto? (S/N): ");
+                            char resposta = scanner.nextLine().toUpperCase().charAt(0);
+                            if (resposta == 'S') {
+                                loja.comprarProduto(id);
+                            } else {
+                                System.out.println("Compra cancelada pelo usuário.");
+                            }
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada inválida. Por favor, insira um número.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 0:
+                    System.out.println("Encerrando o programa. Obrigado!");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida. Por favor, insira um número.");
+            scanner.nextLine();
+        }
+    }
+}
+
+- `````
 - **Loja:** Gerencia o estoque de produtos, armazenando uma lista de produtos. Contém métodos para adicionar, exibir, remover, atualizar e comprar produtos, bem como para gerar IDs sequenciais.
+````java
+package entities;
+
+import exceptions.ProdutoNaoEncontradoException;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Loja {
+
+    private static ArrayList<Produto> estoque;
+    private static int proximoId;
+
+    public Loja() {
+        estoque = new ArrayList<>();
+        proximoId = 1;
+    }
+
+    public void adicionarProduto(Produto produto) {
+        produto.setId(gerarProximoId());
+        estoque.add(produto);
+    }
+
+    public void exibirEstoque() {
+        if (estoque == null || estoque.isEmpty()) {
+            System.out.println("Não possui um estoque ainda ou o estoque está vazio.");
+        } else {
+            System.out.println("===== Estoque da Loja de Mangas =====");
+            for (Produto produto : estoque) {
+                produto.exibirInfo();
+                System.out.println("------------------------------");
+            }
+        }
+    }
+
+    public static int gerarProximoId() {
+        for (Produto produto : estoque) {
+            if (produto.getId() == proximoId) {
+                proximoId++;
+                return gerarProximoId();
+            }
+        }
+        return proximoId;
+    }
+
+    public boolean atualizarProduto(int id) throws ProdutoNaoEncontradoException {
+        for (Produto produto : estoque) {
+            if (produto.getId() == id) {
+                System.out.println("Informações atuais do produto:");
+                produto.exibirInfo();
+                return true;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
+    }
+
+    public Produto buscarProdutoPorId(int id) throws ProdutoNaoEncontradoException {
+        for (Produto produto : estoque) {
+            if (produto.getId() == id) {
+                produto.exibirInfo();
+                return produto;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
+    }
+
+    public Produto solicitarNovasInformacoes(Scanner scanner, Produto produtoAtual) {
+        System.out.println("Digite as novas informações do produto:");
+
+        System.out.print("Novo nome: ");
+        String novoNome = scanner.nextLine();
+
+        System.out.print("Novo preço: ");
+        double novoPreco = scanner.nextDouble();
+        scanner.nextLine();
+
+        if (produtoAtual instanceof Manga) {
+            System.out.print("Novo autor do Manga: ");
+            String novoAutor = scanner.nextLine();
+            ((Manga) produtoAtual).setAutor(novoAutor);
+        }
+
+        if (produtoAtual instanceof Livro) {
+            System.out.print("Novo autor do Livro: ");
+            String novoAutor = scanner.nextLine();
+
+            System.out.print("Novo ano do Livro: ");
+            int novoAno = scanner.nextInt();
+            scanner.nextLine();
+            ((Livro) produtoAtual).setAutor(novoAutor);
+            ((Livro) produtoAtual).setAno(novoAno);
+        }
+
+        produtoAtual.setNome(novoNome);
+        produtoAtual.setPreco(novoPreco);
+
+        return produtoAtual;
+    }
+
+    public Produto removerProdutoByID(int id) throws ProdutoNaoEncontradoException {
+        for (int i = 0; i < estoque.size(); i++) {
+            Produto produto = estoque.get(i);
+            if (id == produto.getId()) {
+                estoque.remove(i);
+                return produto;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
+    }
+
+    public Produto comprarProduto(int id) throws ProdutoNaoEncontradoException{
+        for (int i = 0; i < estoque.size(); i++) {
+            Produto produto = estoque.get(i);
+            if(produto.getId() == id){
+                System.out.println("Produto comprado com Sucesso!");
+                estoque.remove(i);
+                return produto;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto com o ID " + id + " não encontrado.");
+    }
+}
+
+- ````
 
 - **Produto:** Classe abstrata que representa um produto +genérico. Possui atributos comuns a todos os produtos, como nome, ID e preço.
 ````Java
@@ -226,6 +531,17 @@ public class LivroFactory {
 }
 
 ````
+- **ProdutoNaoEncontradoException:** Classe de Excpetions que vai lidar com alguns erros que podem vir a acontecer no código.
+````java
+package exceptions;
+
+public class ProdutoNaoEncontradoException extends Exception {
+    public ProdutoNaoEncontradoException(String mensagem) {
+        super(mensagem);
+    }
+}
+
+- ````
 
 ## Funcionalidades Principais
 

@@ -1,24 +1,35 @@
 import entities.LojaController;
+import exceptions.ProdutoNaoEncontradoException;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ProdutoNaoEncontradoException {
         Scanner scanner = new Scanner(System.in);
         LojaController lojaController = new LojaController(scanner);
 
         lojaController.adicionarMangasAutomaticamente();
 
-        int escolha;
+        int escolha = -1;
         do {
-            lojaController.exibirMenu();
-            System.out.print("Escolha uma opção: ");
-            escolha = scanner.nextInt();
-            scanner.nextLine();
+            try {
+                lojaController.exibirMenu();
+                System.out.print("Escolha uma opção: ");
+                escolha = scanner.nextInt();
+                scanner.nextLine();
 
-            lojaController.processarOpcao(escolha);
+                lojaController.processarOpcao(escolha);
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida. Por favor, insira uma opção válida.");
+                scanner.nextLine();
+            } catch (ProdutoNaoEncontradoException e){
+                System.out.println(e.getMessage());
+            }
         } while (escolha != 0);
 
         scanner.close();
     }
+
 }
+
