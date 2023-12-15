@@ -22,7 +22,7 @@ public class Manga extends Produto {
     public void exibirInfo() {
         System.out.println("Nome: " + getNome());
         System.out.println("Id: " + getId());
-        System.out.println("Preço: R$" + getPreco());
+        System.out.printf("Preço: R$ %.2f%n", getPreco());
 
         if (autor != null) {
             System.out.println("Autor: " + autor);

@@ -215,9 +215,9 @@ public class LojaController {
         }
     }
 }
-
-- `````
+`````
 - **Loja:** Gerencia o estoque de produtos, armazenando uma lista de produtos. Contém métodos para adicionar, exibir, remover, atualizar e comprar produtos, bem como para gerar IDs sequenciais.
+
 ````java
 package entities;
 
